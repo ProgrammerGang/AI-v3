@@ -55,5 +55,5 @@ def generate():
     return jsonify({'response': generated_text})
 
 if __name__ == '__main__':
-    const port = 4001
+    port = 4001
     app.run(debug=True, port=port)
