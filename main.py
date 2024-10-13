@@ -56,8 +56,4 @@ def generate():
 
 if __name__ == '__main__':
     const port = 4001
-    app.run(debug=True)
-    app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-})
-    
+    app.run(debug=True, port=port)
