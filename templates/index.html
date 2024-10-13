@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Interface</title>
+    <style>
+        /* Reset some default styles */
+        * {
+            box-sizing: border-box;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center; /* Center horizontally */
+            align-items: flex-start; /* Align items to the top */
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 600px;
+            height: 90vh;
+            background-color: white;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 20px; /* Add some margin for better appearance */
+        }
+
+        .chat-history {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message-pair {
+            margin-bottom: 15px;
+        }
+
+        .message-box {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            background-color: #e0f7fa;
+            width: fit-content;
+            max-width: 80%;
+        }
+
+        .ai-message-box {
+            background-color: #f0f4c3;
+        }
+
+        .input-container {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+            background-color: #fff;
+            position: sticky;
+            bottom: 0;
+            z-index: 100;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+
+        .send-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .send-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="chat-history" id="chat-history">
+        <!-- Chat messages will be appended here dynamically -->
+    </div>
+    <div class="input-container">
+        <input id="message-input" class="message-input" placeholder="Type your message..."></input>
+        <button class="send-button" onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<script>
+    function sendMessage() {
+        const userPrompt = document.getElementById('message-input').value.trim();
+
+        if (userPrompt === '') return;
+
+        // Add user message to the chat history
+        const chatHistory = document.getElementById('chat-history');
+        
+        // Create a message pair container
+        const messagePair = document.createElement('div');
+        messagePair.className = 'message-pair';
+
+        // Create user message box
+        const userMessage = document.createElement('div');
+        userMessage.className = 'message-box';
+        userMessage.innerHTML = `<strong>You:</strong> ${userPrompt}`;
+        messagePair.appendChild(userMessage);
+
+        // Append the message pair to chat history
+        chatHistory.appendChild(messagePair);
+
+        // Scroll to bottom
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+
+        // Clear input
+        document.getElementById('message-input').value = '';
+
+        // Send the prompt to the server using Fetch API
+        fetch('/generate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ prompt: userPrompt })
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Create AI message box
+            const aiMessage = document.createElement('div');
+            aiMessage.className = 'message-box ai-message-box';
+            aiMessage.innerHTML = `<strong>AI:</strong> ${data.response}`;
+            messagePair.appendChild(aiMessage);
+
+            // Scroll to bottom
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+
+    // Optional: Send message on Enter key press
+    document.getElementById('message-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    });
+</script>
+
+</body>
+</html>
